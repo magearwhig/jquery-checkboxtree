@@ -104,7 +104,7 @@
 		});
 				
 		//set the class correctly for the labels that contain checked checkboxes
-		$labels.addClass(settings.checkedClass)
+		jQuery("input:checked + label",$group).addClass(settings.checkedClass)
 
 		//add hover class for labels if is ie 6
 		if(jQuery.browser.msie&&jQuery.browser.version<7){
@@ -118,6 +118,7 @@
 		if(settings.hidecbwithjs){
 			$checkboxes.hide();
 		}
+
 		
 		return $group;
 	};
