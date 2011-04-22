@@ -23,29 +23,29 @@
 		jQuery("li",$group).each(function(){
 
 			var 
-			$this = jQuery(this), 
+			$this = jQuery(this),
+			$childul = $this.find("ul"),
 			$collapseImage;
 
 			if(settings.checkparents){
-				var checkedchildren = jQuery("ul li input:checked",$this).length
-				var $firstcheckbox = $this.children("input:checkbox:first")
+				var 
+				checkedchildren = jQuery("ul li input:checked",$this).length,
+				$firstcheckbox = $this.children("input:checkbox:first");
 				
-				if((!$this.children("input:checkbox:first").is(":checked")) && (checkedchildren>0)){
+				if((!$firstcheckbox.is(":checked")) && (checkedchildren>0)){
 					$firstcheckbox.attr("checked","checked")
 				}
 			}
 
-			if($this.is(":has(ul)")){
+			if($childul.length){
 				if(settings.collapsed){
-					$this.find("ul").hide();
-					$collapseImage = jQuery('<img class="checkboxtreeimage" src="' + settings.collapsedarrow + '" / >')
-					$collapseImage.data("collapsedstate",0)
+					$childul.hide();
+					$collapseImage = jQuery('<img class="checkboxtreeimage" src="' + settings.collapsedarrow + '" / >').data("collapsedstate",0);
 				}else{
-					$collapseImage = jQuery('<img class="checkboxtreeimage" src="' + settings.expandedarrow + '" / >')
-					$collapseImage.data("collapsedstate",1)
+					$collapseImage = jQuery('<img class="checkboxtreeimage" src="' + settings.expandedarrow + '" / >').data("collapsedstate",1);
 				}
 			}else{
-				$collapseImage = jQuery('<img src="' + settings.blankarrow + '" / >')
+				$collapseImage = jQuery('<img src="' + settings.blankarrow + '" / >');
 			}
 			$this.prepend($collapseImage);
 			
@@ -53,61 +53,58 @@
 
 		//add class signifying the tree has been setup
 		$group.addClass(settings.activeClass);
-
-		$group.bind("click.checkboxtree",function(e,a){
-			var 
-			$clicked = jQuery(e.target), 
-			$clickedcheck = $clicked.prev(), 
-			$currrow = $clicked.parents("li:first"),
-			$clickedparent = $currrow.parents("li:first").find(":checkbox:first"),
-			$clickedparentlabel = $clickedparent.next("label"), 
-			clickedlabel = false,
-			clickedimage = false;
-
-			if($clicked.is(":checkbox + label")){
-				clickedlabel=true;
-			}
-
-			if($clicked.is("img.checkboxtreeimage")){
-				clickedimage=true;
-			}
-
-			//when the label is clicked, set the checkbox to the opposite clicked state, and toggle the checked class
-			if(clickedlabel){
-				$clicked.prev().attr({checked: !$clickedcheck.attr("checked")}).end().toggleClass(settings.checkedClass);
-				//check parents if that option is set
-				if(settings.checkparents){
-					var checkedchildren = jQuery("input:checked",$currrow).length
-					
-					if((!$clickedparent.is(":checked")) && (checkedchildren>0)){
-						$clickedparentlabel.trigger("click.checkboxtree",["checkparents"])
-					}
-				}
-				//check child checkboxes if settings say so
-				if(settings.checkchildren&&a!=="checkparents"){
-					$currrow.find(":checkbox + label").prev().attr({checked: $clickedcheck.attr("checked")?"checked":""})
-					.next()
-					.addClass($clicked.hasClass(settings.checkedClass)?settings.checkedClass:"")
-					.removeClass($clicked.hasClass(settings.checkedClass)?"":settings.checkedClass)
-				}
-			}
-			//handle expanding of levels
-			if(clickedimage){
-				var clickstate=$clicked.data("collapsedstate")
-				if(clickstate===0){
-					$currrow.children("ul").show();
-					$currrow.children("img").attr("src",settings.expandedarrow);
-					$clicked.data("collapsedstate",1)
-				}else if(clickstate===1){
-					$currrow.children("ul").hide();
-					$currrow.children("img").attr("src",settings.collapsedarrow);
-					$clicked.data("collapsedstate",0)
-				}
-			}
-		})
 		
+		$group.delegate(":checkbox + label","click.checkboxtree",function(e,a){
+			
+			var
+			$clicked = jQuery(this), 
+			$currrow = $clicked.parents("li:first"),
+			$clickedcheck = $clicked.prev();
+
+			$clickedcheck.attr({checked: !$clickedcheck.attr("checked")});
+			$clicked.toggleClass(settings.checkedClass);
+
+			//check parents if that option is set
+			if(settings.checkparents){
+			
+				var 
+				checkedchildren = jQuery("input:checked",$currrow).length,
+				$clickedparent = $currrow.parents("li:first").find(":checkbox:first"),
+				$clickedparentlabel = $clickedparent.next("label");
+				
+				if((!$clickedparent.is(":checked")) && (checkedchildren>0)){
+					$clickedparentlabel.trigger("click.checkboxtree",["checkparents"])
+				}
+
+			}
+			//check child checkboxes if settings say so
+			if(settings.checkchildren&&a!=="checkparents"){
+				$currrow.find(":checkbox + label")
+				.addClass($clicked.hasClass(settings.checkedClass)?settings.checkedClass:"")
+				.removeClass($clicked.hasClass(settings.checkedClass)?"":settings.checkedClass)
+				.prev().attr({checked: $clickedcheck.attr("checked")?"checked":""});
+			}
+		});
+
+		$group.delegate("img.checkboxtreeimage","click.checkboxtree",function(e,a){
+
+			var
+			$clicked = jQuery(this), 
+			$currrow = $clicked.parents("li:first"),
+			clickstate=$clicked.data("collapsedstate");
+
+			if(clickstate===0){
+				$currrow.children("ul").show().end().children("img").attr("src",settings.expandedarrow);
+				$clicked.data("collapsedstate",1)
+			}else if(clickstate===1){
+				$currrow.children("ul").hide().end().children("img").attr("src",settings.collapsedarrow);
+				$clicked.data("collapsedstate",0)
+			}
+
+		});
+				
 		//set the class correctly for the labels that contain checked checkboxes
-		jQuery("input:checked + label",$group).addClass(settings.checkedClass)
+		$labels.addClass(settings.checkedClass)
 
 		//add hover class for labels if is ie 6
 		if(jQuery.browser.msie&&jQuery.browser.version<7){
@@ -121,7 +118,6 @@
 		if(settings.hidecbwithjs){
 			$checkboxes.hide();
 		}
-
 		
 		return $group;
 	};
