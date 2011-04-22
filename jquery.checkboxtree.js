@@ -14,15 +14,17 @@
 			checkedClass: "checked"
 		}, settings);
 
-		var $group = this;
-		var $labels = jQuery(":checkbox + label",$group)
-		var $checkboxes = jQuery(":checkbox",$group)
+		var 
+		$group = this, 
+		$labels = jQuery(":checkbox + label",$group), 
+		$checkboxes = jQuery(":checkbox",$group);
 
 		//set up the tree
 		jQuery("li",$group).each(function(){
 
-			var $this = jQuery(this)
-			var $collapseImage;
+			var 
+			$this = jQuery(this), 
+			$collapseImage;
 
 			if(settings.checkparents){
 				var checkedchildren = jQuery("ul li input:checked",$this).length
@@ -53,19 +55,23 @@
 		$group.addClass(settings.activeClass);
 
 		$group.bind("click.checkboxtree",function(e,a){
-			var $clicked = jQuery(e.target)
-			var $clickedcheck = $clicked.prev()
-			var $currrow = $clicked.parents("li:first")
-			var $clickedparent = $currrow.parents("li:first").find(":checkbox:first");
-			var $clickedparentlabel = $clickedparent.next("label");
-			var clickedlabel = false;
-			var clickedimage = false;
+			var 
+			$clicked = jQuery(e.target), 
+			$clickedcheck = $clicked.prev(), 
+			$currrow = $clicked.parents("li:first"),
+			$clickedparent = $currrow.parents("li:first").find(":checkbox:first"),
+			$clickedparentlabel = $clickedparent.next("label"), 
+			clickedlabel = false,
+			clickedimage = false;
+
 			if($clicked.is(":checkbox + label")){
 				clickedlabel=true;
 			}
+
 			if($clicked.is("img.checkboxtreeimage")){
 				clickedimage=true;
 			}
+
 			//when the label is clicked, set the checkbox to the opposite clicked state, and toggle the checked class
 			if(clickedlabel){
 				$clicked.prev().attr({checked: !$clickedcheck.attr("checked")}).end().toggleClass(settings.checkedClass);
